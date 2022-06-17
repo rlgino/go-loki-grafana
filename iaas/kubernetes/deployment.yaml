@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prueba-k8s-v1
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    role: main-v1
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prueba-k8s-v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang
+  template:
+    metadata:
+      labels:
+        app: golang
+        role: main-v1
+    spec:
+      containers:
+        - name: prueba-k8s-cont
+          image: rlgino/prueba-k8s:1.0
+          imagePullPolicy: Always
+          env:
+            - name: NAME
+              value: "Roberto"
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prueba-k8s-v2
+spec:
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  selector:
+    role: main-v2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prueba-k8s-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: golang
+  template:
+    metadata:
+      labels:
+        app: golang
+        role: main-v2
+    spec:
+      containers:
+        - name: prueba-k8s-cont
+          image: rlgino/prueba-k8s:1.0
+          imagePullPolicy: Always
+          env:
+            - name: NAME
+              value: "Gino"
+          ports:
+            - containerPort: 8080
