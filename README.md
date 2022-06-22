@@ -118,3 +118,35 @@ Compatible con prometheus. Al ser independiente, se puede implementar en Grafana
 Reglas:
 1. Alerting rules: Definir alerta a partir de expresiones
 2. Recording rules: Generar métricas en base a los logs.
+
+## Prácticas recomendadas
+
+### Truquitos para la ingestión de logs
+
+Para ello tenemos que comprender el significado de:
+* chunk_target_size, que indica el tamaño (en bytes) deseado por chunk una vez comprimido.
+* max_chunk_age, que indica la máxima duración del chunk en memoria.
+* chunk_idle_period, que indica la máxima duración del chunk en memoria, sin actualizaciones.
+
+Una vez aprendido eso, algunas de las ideas serían:
+
+* Usar etiquetas estáticas y/o de baja cardinalidad.
+* Ajustar y refinar el chunk_target_size, la max_chunk_age y el chunk_idle_period acorde con nuestras necesidades.
+* Usar el flag --analyze-labels para identificar etiquetas problemáticas.
+
+### Respetar el orden cronológico de los logs
+
+Desde una de las versiones recientes de Loki es posible inyectarle líneas de logs desordenadas, es decir, sin respetar 
+el orden cronológico. Sin embargo, aunque dicha opción esté activada por defecto, es recomendable intentar prescindir 
+de ella e incluso desactivarla.
+
+Algunas de las estrategias para respetar dicho orden cuándo no se cumple, son:
+* Identificar nuevos streams, es decir, nuevas etiquetas.
+* Delegar la asignación de la fecha al cliente (Promtail).
+* Gestionarlo y controlarlo desde nuestra aplicación.
+
+### Aplicar el concepto de dead man’s switch
+
+Finalmente, otra práctica recomendada sería configurar alertas siguiendo dicho concepto por ejemplo, mediante el uso 
+de funciones como absent_over_time, que nos permitirán no solo actuar cuándo se cumplan ciertas condiciones en 
+nuestros logs sino también cuándo no se cumplan (por ejemplo, cuándo no nos llega ningún log).
